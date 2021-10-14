@@ -14,6 +14,12 @@ function _parseMillisecondsIntoReadableTime(timestamp) {
 }
 
 // 5 TODO: maak updateSun functie
+const updateSun = (left, bottom, today) =>{
+	let htmlsun = document.querySelector('.js-sun');
+	htmlsun.style.setProperty('--global-sin-position-left', left + '%');
+	htmlsun.style.setProperty('--global-sin-position-bottom', bottom + '%');
+	htmlsun.setAttribute('data-time', new Date(today).getHours() + ":" + (new Date(today).getMinutes()));
+}
 
 // 4 Zet de zon op de juiste plaats en zorg ervoor dat dit iedere minuut gebeurt.
 let placeSunAndStartMoving = (totalMinutes, sunrise) => {
@@ -27,6 +33,32 @@ let placeSunAndStartMoving = (totalMinutes, sunrise) => {
 	// Bekijk of de zon niet nog onder of reeds onder is
 	// Anders kunnen we huidige waarden evalueren en de zon updaten via de updateSun functie.
 	// PS.: vergeet weer niet om het resterend aantal minuten te updaten en verhoog het aantal verstreken minuten.
+
+	console.log("totalMinutes: " + totalMinutes);
+	console.log("sunset: " + sunrise);
+	console.log("now: " + Math.floor(Date.now() / 1000))
+	const morinistamp =  new Date(sunrise * 1000).getMinutes() + (new Date(sunrise * 1000).getHours() * 60);
+	const stamp = new Date(Date.now()).getMinutes() + (new Date(Date.now()).getHours() * 60)
+	console.log("current min: " + stamp)
+	const mornin = stamp - morinistamp
+	console.log("sun is up for: " + mornin + "min")
+	const percantage = Math.round(mornin/totalMinutes*100)
+	console.log("percantage: " + percantage + "%")
+
+
+	let htmlminutesleft = document.querySelector('.js-time-left');
+	htmlminutesleft.innerHTML = totalMinutes - mornin - 60;
+
+	var bottom;
+
+	if(percantage < 50){
+		bottom = percantage * 2;
+	}
+	else if(percantage >=50 && percantage <= 100){
+		bottom = 100 - percantage/2;
+	}
+
+	updateSun(percantage, bottom, Date.now());
 };
 
 // 3 Met de data van de API kunnen we de app opvullen
@@ -36,6 +68,22 @@ let showResult = queryResponse => {
 	// Toon ook de juiste tijd voor de opkomst van de zon en de zonsondergang.
 	// Hier gaan we een functie oproepen die de zon een bepaalde positie kan geven en dit kan updaten.
 	// Geef deze functie de periode tussen sunrise en sunset mee en het tijdstip van sunrise.
+	console.log("in data");
+	console.log(queryResponse);	
+
+	let htmlocation = document.querySelector('.js-location');
+	htmlocation.innerHTML = queryResponse.name + ", " + queryResponse.country
+
+	var sunset = queryResponse.sunset, sunrise = queryResponse.sunrise;
+	let htmlsunset = document.querySelector('.js-sunset');
+	let htmlsunrise = document.querySelector('.js-sunrise');
+
+	htmlsunset.innerHTML = _parseMillisecondsIntoReadableTime(sunset);
+	htmlsunrise.innerHTML = _parseMillisecondsIntoReadableTime(sunrise);
+
+	const timediff = new Date(sunset * 1000 - sunrise * 1000);
+
+	placeSunAndStartMoving(timediff.getHours() * 60 + timediff.getMinutes(), sunrise);
 };
 
 // 2 Aan de hand van een longitude en latitude gaan we de yahoo wheater API ophalen.
@@ -43,9 +91,21 @@ let getAPI = (lat, lon) => {
 	// Eerst bouwen we onze url op
 	// Met de fetch API proberen we de data op te halen.
 	// Als dat gelukt is, gaan we naar onze showResult functie.
+
+	fetch('http://api.openweathermap.org/data/2.5/forecast?lat=' + lat + '&lon=' + lon +'&appid=01864dbaa8f468f51a34f4c455e366b4&units=metric&lang=nl&cnt=1')
+  	.then(response => response.json())
+	.then(data => showResult(data.city));
 };
 
 document.addEventListener('DOMContentLoaded', function() {
 	// 1 We will query the API with longitude and latitude.
-	getAPI(50.8027841, 3.2097454);
+	console.log('Script loaded!');
+	let lat, lon;
+	navigator.geolocation.getCurrentPosition(function(position) {
+		lat = position.coords.latitude.toFixed(2);
+		lon = position.coords.longitude.toFixed(2);
+	
+		console.log("lon: " + lon + "			lat: " + lat);
+		getAPI(lat, lon);
+	});
 });

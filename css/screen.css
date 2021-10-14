@@ -2,16 +2,38 @@
 #FONTS
 \*------------------------------------*/
 
+@font-face {
+    font-family: "WorkSans";
+    font-weight: 400;
+    src: url("../fonts/WorkSans-Italic-VariableFont_wght.woff2") format("woff2")
+}
+
+@font-face {
+    font-family: "WorkSans";
+    font-weight: 600;
+    src: url("../fonts/WorkSans-VariableFont_wght.woff2") format("woff2")
+}
+
 /*------------------------------------*\
 #Variables
 \*------------------------------------*/
 
 :root {
     /* colors */
-
+    --color-front: #0F3557;
+    --color-back: #cce7ff;
     /* opacity */
-
+    --color-front-opacity: #5A7B99;
     /* transitions */
+    --global-sin-position-left: 50%;
+    --global-sin-position-bottom: 100%;
+}
+
+.is-night{
+    --color-front: #cce7ff;
+    --color-back: #0F3557;
+    --color-front-opacity: #809FBC;
+    
 }
 
 /*------------------------------------*\
@@ -27,10 +49,18 @@
 html {
     font-size: 16px;
     line-height: 1.5;
-    font-family: Helvetica, arial, sans-serif;
+    font-family: WorkSans, Helvetica, arial, sans-serif;
     box-sizing: border-box;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: slashed-zero;
+    background-color: var(--color-back);
+    min-height:100%;/* make sure it is at least as tall as the viewport */
+    position:relative;
+}
+
+body{
+    height:100%;
 }
 
 *,
@@ -249,7 +279,9 @@ input::placeholder {
 */
 
 .c-logo {
-
+    font-size: 16px;
+    display: flex;
+    align-items: center;
 }
 
 /*
@@ -259,11 +291,30 @@ input::placeholder {
 */
 
 .c-sun {
-
+    height: 22px;
 }
 
-.c-logo .c-sun {
+.c-logo 
+.c-sun {
+    fill: var(--color-front-opacity);
+    margin-right: 7px;
+}
 
+.c-horizon__sun{
+    position: absolute;
+    left: var(--global-sin-position-left);
+    bottom: var(--global-sin-position-bottom);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    transform: translateY(22px);
+    transform: translateY(30px);
+    transition-property: transform, opacity;
+    transition-duration: 5;
+    transition-timing-function: ease;
+    transition-delay: 2.5;
 }
 
 /*
@@ -272,11 +323,74 @@ input::placeholder {
     Main app wrapper
 */
 
+.c-app{
+    max-width: 400px;
+    margin: 0 auto 0 auto;
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow:hidden;
+    z-index:-1; /* Remove this line if it's not going to be a background! */
+    padding: 0 32px 0 32px;
+}
+
+.c-app__summary{
+    font-size: 28px;
+    line-height: 40px;
+    color: var(--color-front);
+}
+
 /*
     Component: Horizon
     ---
     Horizon with sun visualisation
 */
+
+.c-horizon{
+    margin: 100% 0 0 0;
+}
+
+.c-horizon__line{
+    border-top: 1px solid var(--color-front);
+    color: var(--color-front);
+    display: flex;
+    justify-content: space-between;
+}
+.c-horizon__time{
+    font-size: 12px;
+}
+
+.c-horizon__sky-wrapper {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    padding: 44px 44px 0 0;
+}
+
+.c-horizon__sky {
+    position: relative;
+    height: 100%;
+    color: var(--color-front);
+}
+
+.c-horizon__sun {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    fill: var(--color-front );
+    transform: translateY(22px);
+}
+
+.c-horizon__sun::before{
+    content: attr(data-time);
+    display: block;
+    margin: 0 0 8px 0;
+}
 
 /*------------------------------------*\
 #UTILITIES
@@ -286,6 +400,10 @@ input::placeholder {
     Utilities: Mute
     Mute with opacity
 */
+
+.u-muted{
+    color: var(--color-front-opacity);
+}
 
 /*------------------------------------*\
 #STATES
