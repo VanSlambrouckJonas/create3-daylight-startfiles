@@ -18,7 +18,7 @@ const updateSun = (left, bottom, today) =>{
 	let htmlsun = document.querySelector('.js-sun');
 	htmlsun.style.setProperty('--global-sin-position-left', left + '%');
 	htmlsun.style.setProperty('--global-sin-position-bottom', bottom + '%');
-	htmlsun.setAttribute('data-time', new Date(today).getHours() + ":" + (new Date(today).getMinutes()));
+	htmlsun.setAttribute('data-time', ('0' + new Date(today).getHours()).substr(-2) + ":" + ('0' + (new Date(today).getMinutes())).substr(-2) );
 }
 
 // 4 Zet de zon op de juiste plaats en zorg ervoor dat dit iedere minuut gebeurt.
@@ -59,6 +59,8 @@ let placeSunAndStartMoving = (totalMinutes, sunrise) => {
 	}
 
 	updateSun(percantage, bottom, Date.now());
+
+	document.querySelector('body').classList.add('is-loaded');
 };
 
 // 3 Met de data van de API kunnen we de app opvullen
@@ -107,5 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 		console.log("lon: " + lon + "			lat: " + lat);
 		getAPI(lat, lon);
+		setInterval(function () { getAPI(lat, lon); }, 60 * 1000);
 	});
 });
